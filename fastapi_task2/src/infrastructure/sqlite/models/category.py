@@ -1,5 +1,5 @@
 from sqlalchemy import String, Text, Boolean, DateTime, Integer
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 from ..database import Base
 
@@ -14,67 +14,5 @@ class Category(Base):
     is_published: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime)
 
-    # Relationships
-    posts = relationship("Post", back_populates="category")
-
     def __repr__(self):
         return f"<Category(id={self.id}, title='{self.title}')>"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

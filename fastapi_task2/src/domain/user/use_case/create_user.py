@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 from ....infrastructure.sqlite.database import database
 from ....infrastructure.sqlite.repositories.user_repository import UserRepository
 from ....schemas.user import UserCreate, User
+from datetime import datetime
 
 
 class CreateUserUseCase:
@@ -29,14 +30,19 @@ class CreateUserUseCase:
                         detail=f"Пользователь с email '{user_data.email}' уже существует"
                     )
 
-                # Создаем пользователя
+                # Создаем пользователя со всеми полями Django
                 new_user = self._repo.create(
                     session=session,
                     username=user_data.username,
                     email=user_data.email,
                     password=user_data.password,
                     first_name=user_data.first_name,
-                    last_name=user_data.last_name
+                    last_name=user_data.last_name,
+                    is_active=user_data.is_active,
+                    is_staff=user_data.is_staff,
+                    is_superuser=user_data.is_superuser,
+                    date_joined=datetime.now(),
+                    last_login=None
                 )
 
                 return User.model_validate(new_user)

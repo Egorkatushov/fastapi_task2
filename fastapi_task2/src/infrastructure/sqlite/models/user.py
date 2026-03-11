@@ -1,22 +1,23 @@
-from sqlalchemy import String, Integer, Boolean
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Boolean, DateTime, Integer
+from sqlalchemy.orm import Mapped, mapped_column
+from datetime import datetime
 from ..database import Base
 
 
 class User(Base):
-    __tablename__ = "blog_user"
+    __tablename__ = "auth_user"  # имя таблицы из Django
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    username: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
-    email: Mapped[str] = mapped_column(String(254), unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(String(128), nullable=False)
-    first_name: Mapped[str] = mapped_column(String(64), nullable=False)
-    last_name: Mapped[str] = mapped_column(String(64), nullable=False)
+    password: Mapped[str] = mapped_column(String(128))
+    last_login: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
+    username: Mapped[str] = mapped_column(String(150), unique=True)
+    last_name: Mapped[str] = mapped_column(String(150), default="")
+    email: Mapped[str] = mapped_column(String(254), default="")
+    is_staff: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-
-    # Relationships
-    posts = relationship("Post", back_populates="author", cascade="all, delete-orphan")
-    comments = relationship("Comment", back_populates="author", cascade="all, delete-orphan")
+    date_joined: Mapped[datetime] = mapped_column(DateTime)
+    first_name: Mapped[str] = mapped_column(String(150), default="")
 
     def __repr__(self):
-        return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
+        return f"<User(id={self.id}, username='{self.username}')>"

@@ -4,9 +4,9 @@ from datetime import datetime
 
 class CommentBase(BaseModel):
     """Базовая модель комментария"""
-    text: str
-    post_id: int
-    author_id: int
+    text: str = Field(min_length=1, description="Текст комментария")
+    post_id: int = Field(description="ID поста, к которому относится комментарий")
+    author_id: int = Field(description="ID автора комментария")
 
 
 class CommentCreate(CommentBase):
@@ -15,8 +15,8 @@ class CommentCreate(CommentBase):
 
 
 class CommentUpdate(BaseModel):
-    """Для обновления комментария"""
-    text: str | None = None
+    """Для обновления комментария - только текст можно менять"""
+    text: str = Field(min_length=1, description="Новый текст комментария")
 
 
 class Comment(CommentBase):

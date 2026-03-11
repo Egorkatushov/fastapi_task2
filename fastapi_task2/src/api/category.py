@@ -1,51 +1,56 @@
 from fastapi import APIRouter, Depends, status
 from typing import List
 
-from ..schemas.user import User, UserCreate, UserUpdate
-from ..domain.user.use_case.get_user import GetUserUseCase
-from ..domain.user.use_case.get_users import GetUsersUseCase
-from ..domain.user.use_case.create_user import CreateUserUseCase
-from ..domain.user.use_case.update_user import UpdateUserUseCase
-from ..domain.user.use_case.delete_user import DeleteUserUseCase
+from ..schemas.category import Category, CategoryCreate, CategoryUpdate
+from ..domain.category.use_cases.get_category import GetCategoryUseCase
+from ..domain.category.use_cases.get_categories import GetCategoriesUseCase
+from ..domain.category.use_cases.create_category import CreateCategoryUseCase
+from ..domain.category.use_cases.update_category import UpdateCategoryUseCase
+from ..domain.category.use_cases.delete_category import DeleteCategoryUseCase
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="/categories", tags=["Categories"])
 
 
-@router.get("/", response_model=List[User], status_code=status.HTTP_200_OK)
-async def get_all_users(
-    use_case: GetUsersUseCase = Depends()
-) -> List[User]:
+@router.get("/", response_model=List[Category], status_code=status.HTTP_200_OK)
+async def get_categories(
+    use_case: GetCategoriesUseCase = Depends()
+) -> List[Category]:
+    """Получить все категории"""
     return await use_case.execute()
 
 
-@router.get("/{user_id}", response_model=User, status_code=status.HTTP_200_OK)
-async def get_user(
-    user_id: int,
-    use_case: GetUserUseCase = Depends()
-) -> User:
-    return await use_case.execute(user_id=user_id)
+@router.get("/{category_id}", response_model=Category, status_code=status.HTTP_200_OK)
+async def get_category(
+    category_id: int,
+    use_case: GetCategoryUseCase = Depends()
+) -> Category:
+    """Получить категорию по ID"""
+    return await use_case.execute(category_id)
 
 
-@router.post("/", response_model=User, status_code=status.HTTP_201_CREATED)
-async def create_user(
-    user_data: UserCreate,
-    use_case: CreateUserUseCase = Depends()
-) -> User:
-    return await use_case.execute(user_data=user_data)
+@router.post("/", response_model=Category, status_code=status.HTTP_201_CREATED)
+async def create_category(
+    category_data: CategoryCreate,
+    use_case: CreateCategoryUseCase = Depends()
+) -> Category:
+    """Создать новую категорию"""
+    return await use_case.execute(category_data)
 
 
-@router.put("/{user_id}", response_model=User, status_code=status.HTTP_200_OK)
-async def update_user(
-    user_id: int,
-    user_data: UserUpdate,
-    use_case: UpdateUserUseCase = Depends()
-) -> User:
-    return await use_case.execute(user_id=user_id, user_data=user_data)
+@router.put("/{category_id}", response_model=Category, status_code=status.HTTP_200_OK)
+async def update_category(
+    category_id: int,
+    category_data: CategoryUpdate,
+    use_case: UpdateCategoryUseCase = Depends()
+) -> Category:
+    """Обновить категорию"""
+    return await use_case.execute(category_id, category_data)
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_200_OK)
-async def delete_user(
-    user_id: int,
-    use_case: DeleteUserUseCase = Depends()
+@router.delete("/{category_id}", status_code=status.HTTP_200_OK)
+async def delete_category(
+    category_id: int,
+    use_case: DeleteCategoryUseCase = Depends()
 ) -> dict:
-    return await use_case.execute(user_id=user_id)
+    """Удалить категорию"""
+    return await use_case.execute(category_id)
