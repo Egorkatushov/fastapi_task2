@@ -2,7 +2,7 @@ from typing import Optional, List, Type
 from sqlalchemy.orm import Session
 from datetime import datetime
 from ..models.category import Category
-from ....schemas.category import CategoryCreate, CategoryUpdate  # Добавлен CategoryUpdate
+from ....schemas.category import CategoryCreate, CategoryUpdate
 
 
 class CategoryRepository:
@@ -19,20 +19,20 @@ class CategoryRepository:
         return session.query(self._model).all()
 
     def create(self, session: Session, category_data: CategoryCreate) -> Category:
-        """Создать новую категорию"""
+        """Создать новую категорию с указанным ID"""
         category = self._model(
+            id=category_data.id,
             title=category_data.title,
             description=category_data.description,
             slug=category_data.slug,
             is_published=category_data.is_published,
-            created_at=datetime.now()
+            created_at=category_data.created_at
         )
         session.add(category)
         session.flush()
         return category
 
     def update(self, session: Session, category_id: int, category_data: CategoryUpdate) -> Optional[Category]:
-        """Обновить категорию по ID"""
         category = self.get(session, category_id)
         if not category:
             return None
@@ -46,7 +46,6 @@ class CategoryRepository:
         return category
 
     def delete(self, session: Session, category_id: int) -> bool:
-        """Удалить категорию по ID"""
         category = self.get(session, category_id)
         if category:
             session.delete(category)

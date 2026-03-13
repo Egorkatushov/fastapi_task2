@@ -15,23 +15,19 @@ class LocationRepository:
     def get_all(self, session: Session) -> List[Location]:
         return session.query(self._model).all()
 
-    def get_published(self, session: Session) -> List[Location]:
-        """Получить только опубликованные локации"""
-        return session.query(self._model).filter(self._model.is_published.is_(True)).all()
-
     def create(self, session: Session, location_data: LocationCreate) -> Location:
-        """Создать новую локацию"""
+        """Создать новую локацию с указанным ID"""
         location = self._model(
+            id=location_data.id,
             name=location_data.name,
             is_published=location_data.is_published,
-            created_at=datetime.now()
+            created_at=location_data.created_at
         )
         session.add(location)
         session.flush()
         return location
 
     def update(self, session: Session, location_id: int, location_data: LocationUpdate) -> Optional[Location]:
-        """Обновить локацию по ID"""
         location = self.get(session, location_id)
         if not location:
             return None
@@ -45,7 +41,6 @@ class LocationRepository:
         return location
 
     def delete(self, session: Session, location_id: int) -> bool:
-        """Удалить локацию по ID"""
         location = self.get(session, location_id)
         if location:
             session.delete(location)

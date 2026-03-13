@@ -1,26 +1,24 @@
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
+from typing import Optional
 
 
 class CommentBase(BaseModel):
-    """Базовая модель комментария"""
-    text: str = Field(min_length=1, description="Текст комментария")
-    post_id: int = Field(description="ID поста, к которому относится комментарий")
-    author_id: int = Field(description="ID автора комментария")
+    text: str
+    post_id: int
+    author_id: int
 
 
 class CommentCreate(CommentBase):
-    """Для создания комментария"""
-    pass
+    id: int
+    created_at: datetime
 
 
 class CommentUpdate(BaseModel):
-    """Для обновления комментария - только текст можно менять"""
-    text: str = Field(min_length=1, description="Новый текст комментария")
+    text: Optional[str] = None
 
 
 class Comment(CommentBase):
-    """Для чтения комментария из БД"""
     model_config = ConfigDict(from_attributes=True)
 
     id: int

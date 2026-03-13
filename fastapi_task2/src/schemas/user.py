@@ -1,43 +1,40 @@
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from datetime import datetime
+from typing import Optional
 
 
 class UserBase(BaseModel):
-    """Базовая модель пользователя"""
     username: str = Field(min_length=3, max_length=150)
-    email: str | None = Field(None, max_length=254)
-    first_name: str | None = Field(None, max_length=150)
-    last_name: str | None = Field(None, max_length=150)
-    is_active: bool = True
+    email: Optional[EmailStr] = None
+    first_name: str = Field(default="", max_length=150)
+    last_name: str = Field(default="", max_length=150)
 
 
-class UserCreate(BaseModel):
-    """Для создания пользователя - все поля необязательные кроме username и password"""
-    username: str = Field(min_length=3, max_length=150)
-    password: str = Field(min_length=8)
-    email: EmailStr | None = None
-    first_name: str | None = None
-    last_name: str | None = None
+class UserCreate(UserBase):
+    id: int
+    password: str = Field(min_length=6)
     is_active: bool = True
+    is_staff: bool = False
+    is_superuser: bool = False
+    date_joined: datetime
+    last_login: Optional[datetime] = None
 
 
 class UserUpdate(BaseModel):
-    """Для обновления пользователя все поля необязательные"""
-    username: str | None = Field(None, min_length=3, max_length=150)
-    password: str | None = Field(None, min_length=8)
-    email: EmailStr | None = None
-    first_name: str | None = None
-    last_name: str | None = None
-    is_active: bool | None = None
+    username: Optional[str] = Field(None, min_length=3, max_length=150)
+    email: Optional[EmailStr] = None
+    password: Optional[str] = Field(None, min_length=6)
+    first_name: Optional[str] = Field(None, max_length=150)
+    last_name: Optional[str] = Field(None, max_length=150)
+    is_active: Optional[bool] = None
 
 
 class User(UserBase):
-    """Для чтения пользователя из БД (без пароля)"""
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    is_active: bool
     is_superuser: bool
     is_staff: bool
+    last_login: Optional[datetime] = None
     date_joined: datetime
-    last_login: datetime | None = None
-    email: str | None = None

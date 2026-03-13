@@ -24,10 +24,9 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Подключаем все роутеры
     app.include_router(base_router)
     app.include_router(user_router)
-    app.include_router(category_router)  # Проверьте, что эта строка есть!
+    app.include_router(category_router)
     app.include_router(location_router)
     app.include_router(post_router)
     app.include_router(comment_router)

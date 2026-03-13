@@ -11,7 +11,8 @@ class CategoryBase(BaseModel):
 
 
 class CategoryCreate(CategoryBase):
-    pass
+    id: int
+    created_at: datetime
 
 
 class CategoryUpdate(BaseModel):
