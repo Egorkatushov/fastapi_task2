@@ -13,6 +13,10 @@ class UserRepository:
     def get_by_username(self, session: Session, username: str) -> Optional[User]:
         return session.query(self.model).filter(self.model.username == username).first()
 
+
+    def get_by_email(self, session: Session, email: str) -> Optional[User]:
+        return session.query(self.model).filter(self.model.email == email).first()
+
     def get_all(self, session: Session) -> List[User]:
         return session.query(self.model).all()
 

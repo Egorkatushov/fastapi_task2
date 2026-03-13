@@ -1,6 +1,8 @@
 from typing import Optional, List, Type
 from sqlalchemy.orm import Session
-from..models.location import Location
+from datetime import datetime
+from ..models.location import Location
+from ....schemas.location import LocationCreate, LocationUpdate
 
 
 class LocationRepository:
@@ -10,24 +12,42 @@ class LocationRepository:
     def get(self, session: Session, location_id: int) -> Optional[Location]:
         return session.query(self._model).filter(self._model.id == location_id).first()
 
-    def get_by_slug(self, session: Session, slug: str) -> Optional[Location]:
-        return session.query(self._model).filter(self._model.slug == slug).first()
-
     def get_all(self, session: Session) -> List[Location]:
         return session.query(self._model).all()
 
-    def create(self, session: Session, **kwargs) -> Location:
-        location = self._model(**kwargs)
+    def get_published(self, session: Session) -> List[Location]:
+        """Получить только опубликованные локации"""
+        return session.query(self._model).filter(self._model.is_published.is_(True)).all()
+
+    def create(self, session: Session, location_data: LocationCreate) -> Location:
+        """Создать новую локацию"""
+        location = self._model(
+            name=location_data.name,
+            is_published=location_data.is_published,
+            created_at=datetime.now()
+        )
         session.add(location)
         session.flush()
         return location
 
-    def update(self, session: Session, location: Location, **kwargs) -> Location:
-        for key, value in kwargs.items():
-            if value is not None:
-                setattr(location, key, value)
+    def update(self, session: Session, location_id: int, location_data: LocationUpdate) -> Optional[Location]:
+        """Обновить локацию по ID"""
+        location = self.get(session, location_id)
+        if not location:
+            return None
+
+        update_data = location_data.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            if hasattr(location, field):
+                setattr(location, field, value)
+
         session.add(location)
         return location
 
-    def delete(self, session: Session, location: Location) -> None:
-        session.delete(location)
+    def delete(self, session: Session, location_id: int) -> bool:
+        """Удалить локацию по ID"""
+        location = self.get(session, location_id)
+        if location:
+            session.delete(location)
+            return True
+        return False

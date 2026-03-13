@@ -1,6 +1,8 @@
 from typing import Optional, List, Type
 from sqlalchemy.orm import Session
+from datetime import datetime
 from ..models.category import Category
+from ....schemas.category import CategoryCreate, CategoryUpdate  # Добавлен CategoryUpdate
 
 
 class CategoryRepository:
@@ -16,18 +18,37 @@ class CategoryRepository:
     def get_all(self, session: Session) -> List[Category]:
         return session.query(self._model).all()
 
-    def create(self, session: Session, **kwargs) -> Category:
-        category = self._model(**kwargs)
+    def create(self, session: Session, category_data: CategoryCreate) -> Category:
+        """Создать новую категорию"""
+        category = self._model(
+            title=category_data.title,
+            description=category_data.description,
+            slug=category_data.slug,
+            is_published=category_data.is_published,
+            created_at=datetime.now()
+        )
         session.add(category)
         session.flush()
         return category
 
-    def update(self, session: Session, category: Category, **kwargs) -> Category:
-        for key, value in kwargs.items():
-            if value is not None:
-                setattr(category, key, value)
+    def update(self, session: Session, category_id: int, category_data: CategoryUpdate) -> Optional[Category]:
+        """Обновить категорию по ID"""
+        category = self.get(session, category_id)
+        if not category:
+            return None
+
+        update_data = category_data.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            if hasattr(category, field):
+                setattr(category, field, value)
+
         session.add(category)
         return category
 
-    def delete(self, session: Session, category: Category) -> None:
-        session.delete(category)
+    def delete(self, session: Session, category_id: int) -> bool:
+        """Удалить категорию по ID"""
+        category = self.get(session, category_id)
+        if category:
+            session.delete(category)
+            return True
+        return False

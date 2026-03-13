@@ -13,10 +13,12 @@ class CreatePostUseCase:
         """Создать новый пост"""
         try:
             with self._database.session() as session:
-                # Здесь можно добавить проверки существования author_id, category_id, location_id
-                new_post = self._repo.create(session, **post_data.model_dump())
-                return Post.model_validate(new_post)
 
+                post = self._repo.create(session, post_data)
+                return Post.model_validate(post)
+
+        except HTTPException:
+            raise
         except Exception as e:
             print(f"Ошибка при создании поста: {e}")
             raise HTTPException(
