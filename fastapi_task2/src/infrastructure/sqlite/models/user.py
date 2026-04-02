@@ -7,7 +7,7 @@ from ..database import Base
 class User(Base):
     __tablename__ = "auth_user"  # имя таблицы из Django
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=False)
     password: Mapped[str] = mapped_column(String(128))
     last_login: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
