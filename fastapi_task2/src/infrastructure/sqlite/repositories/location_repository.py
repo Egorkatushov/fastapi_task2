@@ -12,6 +12,10 @@ class LocationRepository:
     def get(self, session: Session, location_id: int) -> Optional[Location]:
         return session.query(self._model).filter(self._model.id == location_id).first()
 
+    def get_by_name(self, session: Session, name: str) -> Optional[Location]:
+        """Получить локацию по имени"""
+        return session.query(self._model).filter(self._model.name == name).first()
+
     def get_all(self, session: Session) -> List[Location]:
         return session.query(self._model).all()
 

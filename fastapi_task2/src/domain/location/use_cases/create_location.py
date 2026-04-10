@@ -1,7 +1,7 @@
-from fastapi import HTTPException, status
 from ....infrastructure.sqlite.database import database
 from ....infrastructure.sqlite.repositories.location_repository import LocationRepository
 from ....schemas.location import LocationCreate, Location
+from ....core.exceptions.location_exceptions import LocationNameIsNotUniqueException
 
 
 class CreateLocationUseCase:
@@ -11,13 +11,9 @@ class CreateLocationUseCase:
 
     async def execute(self, location_data: LocationCreate) -> Location:
         with self._database.session() as session:
-            # Проверяем, не существует ли уже локация с таким ID
-            existing = self._repo.get(session, location_data.id)
+            existing = self._repo.get_by_name(session, location_data.name)
             if existing:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Location with id {location_data.id} already exists"
-                )
+                raise LocationNameIsNotUniqueException(location_data.name)
 
             location = self._repo.create(session, location_data)
             return Location.model_validate(location)
