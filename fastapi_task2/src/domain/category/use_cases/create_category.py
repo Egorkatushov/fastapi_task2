@@ -4,7 +4,10 @@ from ....infrastructure.sqlite.repositories.category_repository import CategoryR
 from ....schemas.category import CategoryCreate, Category
 from ....core.exceptions.category_exceptions import (
     CategoryNameAlreadyExistsException,
-    CategoryAlreadyExistsException  # ← ДОБАВЬТЕ
+    CategoryAlreadyExistsException,
+    CategoryTitleEmptyException,
+    CategoryDescriptionEmptyException,
+    CategorySlugEmptyException
 )
 from sqlalchemy.exc import IntegrityError
 
@@ -15,16 +18,26 @@ class CreateCategoryUseCase:
         self._repo = CategoryRepository()
 
     async def execute(self, category_data: CategoryCreate) -> Category:
+        # Валидация на пустые значения
+        if not category_data.title or not category_data.title.strip():
+            raise CategoryTitleEmptyException()
+
+        if not category_data.description or not category_data.description.strip():
+            raise CategoryDescriptionEmptyException()
+
+        if not category_data.slug or not category_data.slug.strip():
+            raise CategorySlugEmptyException()
+
         with self._database.session() as session:
-            # ← ДОБАВЬТЕ ПРОВЕРКУ СУЩЕСТВОВАНИЯ КАТЕГОРИИ ПО ID
+            # Проверка существования категории по ID
             existing_category = self._repo.get(session, category_data.id)
             if existing_category:
                 raise CategoryAlreadyExistsException(category_data.id)
 
             # Проверка уникальности названия
-            existing_name = self._repo.get_by_name(session, category_data.name)
-            if existing_name:
-                raise CategoryNameAlreadyExistsException(category_data.name)
+            existing_title = self._repo.get_by_title(session, category_data.title)
+            if existing_title:
+                raise CategoryNameAlreadyExistsException(category_data.title)
 
             try:
                 category = self._repo.create(session, category_data)

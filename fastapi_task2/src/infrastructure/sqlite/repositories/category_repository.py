@@ -1,3 +1,4 @@
+# src/infrastructure/sqlite/repositories/category_repository.py
 from typing import Optional, List, Type
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -12,17 +13,22 @@ class CategoryRepository:
     def get(self, session: Session, category_id: int) -> Optional[Category]:
         return session.query(self._model).filter(self._model.id == category_id).first()
 
+    def get_by_title(self, session: Session, title: str) -> Optional[Category]:  # ← изменили название метода
+        """Получить категорию по названию (title)"""
+        return session.query(self._model).filter(self._model.title == title).first()  # ← поле в модели должно быть title
+
     def get_by_slug(self, session: Session, slug: str) -> Optional[Category]:
+        """Получить категорию по slug"""
         return session.query(self._model).filter(self._model.slug == slug).first()
 
     def get_all(self, session: Session) -> List[Category]:
         return session.query(self._model).all()
 
     def create(self, session: Session, category_data: CategoryCreate) -> Category:
-        """Создать новую категорию с указанным ID"""
+        """Создать новую категорию"""
         category = self._model(
             id=category_data.id,
-            title=category_data.title,
+            title=category_data.title,  # ← используем title
             description=category_data.description,
             slug=category_data.slug,
             is_published=category_data.is_published,
@@ -38,9 +44,9 @@ class CategoryRepository:
             return None
 
         update_data = category_data.model_dump(exclude_unset=True)
-        for field, value in update_data.items():
-            if hasattr(category, field):
-                setattr(category, field, value)
+        for key, value in update_data.items():
+            if value is not None and hasattr(category, key):
+                setattr(category, key, value)
 
         session.add(category)
         return category

@@ -1,18 +1,15 @@
-from sqlalchemy import String, Text, Boolean, DateTime, Integer
-from sqlalchemy.orm import Mapped, mapped_column
-from datetime import datetime
+# src/infrastructure/sqlite/models/category.py
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text
+from sqlalchemy.sql import func
 from ..database import Base
 
 
 class Category(Base):
     __tablename__ = "blog_category"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    title: Mapped[str] = mapped_column(String(256))
-    description: Mapped[str] = mapped_column(Text)
-    slug: Mapped[str] = mapped_column(String(64), unique=True)
-    is_published: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime)
-
-    def __repr__(self):
-        return f"<Category(id={self.id}, title='{self.title}')>"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String(256), nullable=False)  # ← должно быть title, а не name
+    description = Column(Text, nullable=False)
+    slug = Column(String(64), nullable=False, unique=True)
+    is_published = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=func.now())
